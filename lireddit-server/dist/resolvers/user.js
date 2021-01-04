@@ -25,8 +25,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserResolver = void 0;
-const User_1 = require("../entities/User");
 const type_graphql_1 = require("type-graphql");
+const User_1 = require("../entities/User");
 const argon2_1 = __importDefault(require("argon2"));
 let UsernamePasswordInput = class UsernamePasswordInput {
 };
@@ -68,14 +68,24 @@ UserResponse = __decorate([
     type_graphql_1.ObjectType()
 ], UserResponse);
 let UserResolver = class UserResolver {
-    register(options, { em }) {
+    me({ req, em }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log("session", req.session);
+            if (!req.session.userId) {
+                return null;
+            }
+            const user = yield em.findOne(User_1.User, { id: req.session.userId });
+            return user;
+        });
+    }
+    register(options, { em, req }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (options.username.length <= 2) {
                 return {
                     errors: [
                         {
                             field: "username",
-                            message: "lenght must be greate than 2",
+                            message: "length must be greater than 2",
                         },
                     ],
                 };
@@ -85,7 +95,7 @@ let UserResolver = class UserResolver {
                     errors: [
                         {
                             field: "password",
-                            message: "lenght must be greate than 2",
+                            message: "length must be greater than 2",
                         },
                     ],
                 };
@@ -110,10 +120,11 @@ let UserResolver = class UserResolver {
                     };
                 }
             }
+            req.session.userId = user.id;
             return { user };
         });
     }
-    login(options, { em }) {
+    login(options, { em, req }) {
         return __awaiter(this, void 0, void 0, function* () {
             const user = yield em.findOne(User_1.User, { username: options.username });
             if (!user) {
@@ -121,7 +132,7 @@ let UserResolver = class UserResolver {
                     errors: [
                         {
                             field: "username",
-                            message: "username dosen't exist",
+                            message: "that username doesn't exist",
                         },
                     ],
                 };
@@ -132,15 +143,26 @@ let UserResolver = class UserResolver {
                     errors: [
                         {
                             field: "password",
-                            message: "password incorrect",
+                            message: "incorrect password",
                         },
                     ],
                 };
             }
-            return { user };
+            req.session.userId = user.id;
+            console.log(user.id);
+            return {
+                user,
+            };
         });
     }
 };
+__decorate([
+    type_graphql_1.Query(() => User_1.User, { nullable: true }),
+    __param(0, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "me", null);
 __decorate([
     type_graphql_1.Mutation(() => UserResponse),
     __param(0, type_graphql_1.Arg("options")),
