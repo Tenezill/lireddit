@@ -28,6 +28,7 @@ const main = async () => {
       credentials: true,
     })
   );
+  console.log("cookie");
   app.use(
     session({
       name: "qid",
@@ -36,8 +37,8 @@ const main = async () => {
         disableTouch: true,
       }),
       cookie: {
-        maxAge: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
-        httpOnly: true,
+        maxAge: 1000 * 60 * 60 * 24 * 365 * 1, // 10 years
+        httpOnly: false,
         sameSite: "lax", // csrf
         secure: __prod__, // cookie only works in https
       },
