@@ -38,19 +38,18 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
     }));
     console.log("cookie");
     app.use(express_session_1.default({
-        name: "qid",
+        name: constants_1.COOKIE_NAME,
         store: new RedisStore({
             client: redisClient,
             disableTouch: true,
         }),
         cookie: {
             maxAge: 1000 * 60 * 60 * 24 * 365 * 1,
-            httpOnly: false,
+            httpOnly: true,
             sameSite: "lax",
-            secure: constants_1.__prod__,
         },
         saveUninitialized: false,
-        secret: "qowiueojwojfalksdjoqiwueo",
+        secret: "qowihho",
         resave: false,
     }));
     const apolloServer = new apollo_server_express_1.ApolloServer({
